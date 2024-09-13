@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voting Results</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    h2 {
+      color: #007bff;
+    }
+    p {
+      font-size: 18px;
+    }
+    h3 {
+      color: green;
+      font-size: 22px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Voting Results</h2>
+  <p id="candidate1Result">Candidate 1: 0 votes</p>
+  <p id="candidate2Result">Candidate 2: 0 votes</p>
+  <p id="candidate3Result">Candidate 3: 0 votes</p>
+  <h3 id="leadingCandidate"></h3>
+  <button class="btn btn-secondary" id="backToMain">Back to Main</button>
+
+  <script>
+    // Retrieve vote counts from the form data
+    const params = new URLSearchParams(window.location.search);
+    const candidate1Votes = params.get('candidate1Votes') || 0;
+    const candidate2Votes = params.get('candidate2Votes') || 0;
+    const candidate3Votes = params.get('candidate3Votes') || 0;
+
+    document.getElementById('candidate1Result').textContent = `Candidate 1: ${candidate1Votes} votes`;
+    document.getElementById('candidate2Result').textContent = `Candidate 2: ${candidate2Votes} votes`;
+    document.getElementById('candidate3Result').textContent = `Candidate 3: ${candidate3Votes} votes`;
+    document.getElementById('leadingCandidate').textContent = getLeadingCandidate(candidate1Votes, candidate2Votes, candidate3Votes);
+
+    function getLeadingCandidate(votes1, votes2, votes3) {
+      const maxVotes = Math.max(votes1, votes2, votes3);
+      if (maxVotes == votes1) {
+        return 'Candidate 1 is leading';
+      } else if (maxVotes == votes2) {
+        return 'Candidate 2 is leading';
+      } else {
+        return 'Candidate 3 is leading';
+      }
+    }
+
+    document.getElementById('backToMain').addEventListener('click', function () {
+      window.close(); // Close the results tab
+    });
+  </script>
+</body>
+</html>

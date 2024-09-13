@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voting System</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    #candidates {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    }
+    .candidate-circle {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 2px solid #007bff;
+      display: inline-block;
+      text-align: center;
+      line-height: 100px;
+      margin: 10px;
+      cursor: pointer;
+    }
+    .candidate-circle:hover {
+      background-color: #007bff;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-5">
+    <h2 class="text-center mb-4" id="pageTitle">Sign In or Sign Up</h2>
+    <!-- Sign-in/Sign-up Form -->
+    <form id="authForm">
+      <!-- User Name -->
+      <div class="mb-3 d-none" id="nameField">
+        <label for="userName" class="form-label">Name</label>
+        <input type="text" class="form-control" id="userName" placeholder="Enter your name">
+      </div>
+
+      <!-- Email -->
+      <div class="mb-3">
+        <label for="authEmail" class="form-label">Email address</label>
+        <input type="email" class="form-control" id="authEmail" placeholder="Enter your email" required>
+      </div>
+
+      <!-- Password -->
+      <div class="mb-3">
+        <label for="authPassword" class="form-label">Password</label>
+        <input type="password" class="form-control" id="authPassword" placeholder="Enter your password" required>
+      </div>
+
+      <!-- Confirm Password (only for sign-up) -->
+      <div class="mb-3 d-none" id="confirmPasswordField">
+        <label for="confirmAuthPassword" class="form-label">Confirm Password</label>
+        <input type="password" class="form-control" id="confirmAuthPassword" placeholder="Confirm your password">
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+    <!-- Toggle between Sign-in and Sign-up -->
+    <p class="mt-3">
+      <a href="#" id="toggleAuth">Don't have an account? Sign Up</a>
+    </p>
+
+    <!-- Voting Section (Hidden by default) -->
+    <div id="votingSection" class="mt-5 d-none">
+      <h3 class="text-center mb-4">Choose Your Candidate</h3>
+      <div id="candidates">
+        <div id="candidate1" class="candidate-circle">Candidate 1</div>
+        <div id="candidate2" class="candidate-circle">Candidate 2</div>
+        <div id="candidate3" class="candidate-circle">Candidate 3</div>
+      </div>
+    </div>
+
+    <!-- After Voting (Hidden by default) -->
+    <div id="afterVotingSection" class="mt-5 d-none">
+      <h3 class="text-center mb-4">Thanks for Voting!</h3>
+      <button class="btn btn-info" id="goToResult">Go to Result</button>
+      <button class="btn btn-secondary" id="backToAuth">Sign In / Sign Up</button>
+    </div>
+
+    <!-- Result Section -->
+    <div id="resultPage" class="d-none">
+      <h2>Voting Results</h2>
+      <p id="candidate1Result">Candidate 1: 0 votes</p>
+      <p id="candidate2Result">Candidate 2: 0 votes</p>
+      <p id="candidate3Result">Candidate 3: 0 votes</p>
+      <h3 id="leadingCandidate"></h3>
+      <button class="btn btn-secondary" id="backToMain">Back to Main</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const authForm = document.getElementById('authForm');
+    const votingSection = document.getElementById('votingSection');
+    const afterVotingSection = document.getElementById('afterVotingSection');
+    const toggleAuth = document.getElementById('toggleAuth');
+    const nameField = document.getElementById('nameField');
+    const confirmPasswordField = document.getElementById('confirmPasswordField');
+    const authEmail = document.getElementById('authEmail');
+    const authPassword = document.getElementById('authPassword');
+    const confirmAuthPassword = document.getElementById('confirmAuthPassword');
+    const pageTitle = document.getElementById('pageTitle');
+    const goToResultBtn = document.getElementById('goToResult');
+    const backToAuthBtn = document.getElementById('backToAuth');
+    const resultPage = document.getElementById('resultPage');
+    const backToMainBtn = document.getElementById('backToMain');
+
+    // Vote counts
+    let candidate1Votes = 0;
+    let candidate2Votes = 0;
+    let candidate3Votes = 0;
+
+    // Fake user storage (for simplicity, storing users in an array)
+    const users = [];
+    let currentUser = null;
+
+    // Toggle between Sign-in and Sign-up
+    toggleAuth.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (nameField.classList.contains('d-none')) {
+        // Switching to Sign-up
+        nameField.classList.remove('d-none');
+        confirmPasswordField.classList.remove('d-none');
+        pageTitle.textContent = 'Sign Up';
+        toggleAuth.textContent = 'Already have an account? Sign In';
+      } else {
+        // Switching to Sign-in
+        nameField.classList.add('d-none');
+        confirmPasswordField.classList.add('d-none');
+        pageTitle.textContent = 'Sign In';
+        toggleAuth.textContent = "Don't have an account? Sign Up";
+      }
+    });
+
+// Handle Sign-in/Sign-up
+authForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const email = authEmail.value;
+    const password = authPassword.value;
+
+    if (nameField.classList.contains('d-none')) {
+        // Sign-in logic
+        const user = users.find(u => u.email === email && u.password === password);
+        if (user) {
+            currentUser = user;
+            showVotingPage(); // Proceed to voting page
+        } else {
+            alert('Invalid email or password.');
+        }
+    } else {
+        // Sign-up logic
+        const name = document.getElementById('userName').value;
+        const confirmPassword = confirmAuthPassword.value;
+
+        if (password === confirmPassword) {
+            const newUser = { name, email, password };
+            users.push(newUser); // Add new user
+            currentUser = newUser;
+            showVotingPage(); // Proceed to voting page
+        } else {
+            alert('Passwords do not match!');
+        }
+    }
+});
+
+// Clear form and show voting page
+function showVotingPage() {
+    votingSection.classList.remove('d-none');
+    authForm.classList.add('d-none'); // Hide the sign-in/sign-up form
+}
+
+// Handle Voting
+document.getElementById('candidate1').addEventListener('click', function () {
+    candidate1Votes++;
+    showAfterVoting();
+});
+
+document.getElementById('candidate2').addEventListener('click', function () {
+    candidate2Votes++;
+    showAfterVoting();
+});
+
+document.getElementById('candidate3').addEventListener('click', function () {
+    candidate3Votes++;
+    showAfterVoting();
+});
+
+// Show after voting section
+function showAfterVoting() {
+    votingSection.classList.add('d-none');
+    afterVotingSection.classList.remove('d-none');
+}
+
+goToResultBtn.addEventListener('click', function () {
+    // Create a new URL with parameters for the result
+    const resultUrl = 'result.html';
+
+    // Set up a form to submit data to the new page
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = resultUrl;
+
+    // Add input fields for each candidate's vote count
+    const input1 = document.createElement('input');
+    input1.type = 'hidden';
+    input1.name = 'candidate1Votes';
+    input1.value = candidate1Votes;
+    form.appendChild(input1);
+
+    const input2 = document.createElement('input');
+    input2.type = 'hidden';
+    input2.name = 'candidate2Votes';
+    input2.value = candidate2Votes;
+    form.appendChild(input2);
+
+    const input3 = document.createElement('input');
+    input3.type = 'hidden';
+    input3.name = 'candidate3Votes';
+    input3.value = candidate3Votes;
+    form.appendChild(input3);
+
+    document.body.appendChild(form);
+    form.submit(); // Submit the form to open the new page with results
+});
+
+
+
+// Determine the leading candidate
+function getLeadingCandidate() {
+    const maxVotes = Math.max(candidate1Votes, candidate2Votes, candidate3Votes);
+    if (maxVotes === candidate1Votes) {
+        return 'Candidate 1 is leading';
+    } else if (maxVotes === candidate2Votes) {
+        return 'Candidate 2 is leading';
+    } else {
+        return 'Candidate 3 is leading';
+    }
+}
+
+// Back to Sign-in/Sign-up page after voting
+backToAuthBtn.addEventListener('click', function () {
+    afterVotingSection.classList.add('d-none');
+    authForm.classList.remove('d-none'); // Show the sign-in/sign-up form again
+});
+
+// Back to Main Page from Results (if needed)
+backToMainBtn.addEventListener('click', function () {
+    resultPage.classList.add('d-none');
+    authForm.classList.remove('d-none');
+});
+
+  </script>
+</body>
+</html>
