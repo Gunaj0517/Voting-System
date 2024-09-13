@@ -169,13 +169,11 @@ authForm.addEventListener('submit', function (e) {
     }
 });
 
-// Clear form and show voting page
 function showVotingPage() {
     votingSection.classList.remove('d-none');
-    authForm.classList.add('d-none'); // Hide the sign-in/sign-up form
+    authForm.classList.add('d-none'); 
 }
 
-// Handle Voting
 document.getElementById('candidate1').addEventListener('click', function () {
     candidate1Votes++;
     showAfterVoting();
@@ -191,22 +189,16 @@ document.getElementById('candidate3').addEventListener('click', function () {
     showAfterVoting();
 });
 
-// Show after voting section
 function showAfterVoting() {
     votingSection.classList.add('d-none');
     afterVotingSection.classList.remove('d-none');
 }
 
 goToResultBtn.addEventListener('click', function () {
-    // Create a new URL with parameters for the result
     const resultUrl = 'result.html';
-
-    // Set up a form to submit data to the new page
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = resultUrl;
-
-    // Add input fields for each candidate's vote count
     const input1 = document.createElement('input');
     input1.type = 'hidden';
     input1.name = 'candidate1Votes';
@@ -226,12 +218,9 @@ goToResultBtn.addEventListener('click', function () {
     form.appendChild(input3);
 
     document.body.appendChild(form);
-    form.submit(); // Submit the form to open the new page with results
+    form.submit(); 
 });
 
-
-
-// Determine the leading candidate
 function getLeadingCandidate() {
     const maxVotes = Math.max(candidate1Votes, candidate2Votes, candidate3Votes);
     if (maxVotes === candidate1Votes) {
@@ -242,14 +231,11 @@ function getLeadingCandidate() {
         return 'Candidate 3 is leading';
     }
 }
-
-// Back to Sign-in/Sign-up page after voting
 backToAuthBtn.addEventListener('click', function () {
     afterVotingSection.classList.add('d-none');
-    authForm.classList.remove('d-none'); // Show the sign-in/sign-up form again
+    authForm.classList.remove('d-none');
 });
 
-// Back to Main Page from Results (if needed)
 backToMainBtn.addEventListener('click', function () {
     resultPage.classList.add('d-none');
     authForm.classList.remove('d-none');
